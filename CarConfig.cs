@@ -1,6 +1,7 @@
 using BepInEx.Configuration;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace CustomCars;
 
@@ -35,6 +36,10 @@ public class CarConfig
     public ConfigEntry<bool> CheckForUpdates;
     public ConfigEntry<bool> SilenceUpdateNotifications;
     
+    // Model browser settings
+    public ConfigEntry<KeyCode> OpenModelBrowserKey;
+    public ConfigEntry<bool> AutoCheckForNewModels;
+    
     public CarConfig(ConfigFile config)
     {
         configFile = config;
@@ -63,6 +68,21 @@ public class CarConfig
             "SilenceUpdateNotifications",
             false,
             "Set to true to stop showing update notifications"
+        );
+        
+        // Model browser configuration
+        OpenModelBrowserKey = config.Bind(
+            "Model Browser",
+            "OpenBrowserKey",
+            KeyCode.F6,
+            "Press this key to open the model browser and download new car models"
+        );
+        
+        AutoCheckForNewModels = config.Bind(
+            "Model Browser",
+            "AutoCheckForNewModels",
+            true,
+            "Automatically check for new models in the catalog on launch"
         );
         
         // Player 1 Configuration

@@ -1,0 +1,34 @@
+{
+  "models": [
+    {
+      "name": "cybertruck",
+      "displayName": "Cybertruck",
+      "description": "A futuristic angular electric truck design",
+      "author": "JosFa1",
+      "version": "1.0",
+      "downloadUrl": "https://raw.githubusercontent.com/JosFa1/CustomCars/main/Models/cybertruck",
+      "previewUrl": "",
+      "fileSize": "0.5"
+    },
+    {
+      "name": "cozycoupe",
+      "displayName": "Cozy Coupe",
+      "description": "Classic children's car with a timeless design",
+      "author": "JosFa1",
+      "version": "1.0",
+      "downloadUrl": "https://raw.githubusercontent.com/JosFa1/CustomCars/main/Models/cozycoupe",
+      "previewUrl": "",
+      "fileSize": "0.3"
+    },
+    {
+      "name": "keitruck",
+      "displayName": "Kei Truck",
+      "description": "Compact Japanese utility vehicle",
+      "author": "JosFa1",
+      "version": "1.0",
+      "downloadUrl": "https://raw.githubusercontent.com/JosFa1/CustomCars/main/Models/keitruck",
+      "previewUrl": "",
+      "fileSize": "0.4"
+    }
+  ]
+}

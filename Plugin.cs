@@ -33,6 +33,11 @@ public class Plugin : BaseUnityPlugin
     // Update checker
     private UpdateChecker updateChecker;
     private UpdateNotificationUI updateNotificationUI;
+    
+    // Model browser
+    private ModelCatalog modelCatalog;
+    private ModelDownloader modelDownloader;
+    private ModelBrowserUI modelBrowserUI;
         
     private void Awake()
     {
@@ -65,9 +70,28 @@ public class Plugin : BaseUnityPlugin
             updateChecker.Initialize(Logger, MyPluginInfo.PLUGIN_VERSION, OnUpdateAvailable);
             updateChecker.CheckForUpdates();
         }
+        
+        // Initialize model browser system
+        InitializeModelBrowser();
+        
+        // Auto-check for new models
+        if (carConfig.AutoCheckForNewModels.Value)
+        {
+            modelCatalog.FetchCatalog();
+        }
 
         // Subscribe to scene load events
         SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+    
+    private void Update()
+    {
+        // Check for model browser hotkey
+        if (Input.GetKeyDown(carConfig.OpenModelBrowserKey.Value))
+        {
+            Logger.LogInfo("Model browser key pressed - fetching catalog...");
+            modelCatalog.FetchCatalog();
+        }
     }
     
     private void OnDestroy()
@@ -420,6 +444,53 @@ public class Plugin : BaseUnityPlugin
             OnUserResponse,
             OnSilenceUpdates
         );
+    }
+    
+    private void InitializeModelBrowser()
+    {
+        // Create model catalog fetcher
+        GameObject catalogObj = new GameObject("CustomCarsModelCatalog");
+        modelCatalog = catalogObj.AddComponent<ModelCatalog>();
+        DontDestroyOnLoad(catalogObj);
+        
+        modelCatalog.Initialize(Logger, OnCatalogLoaded);
+        
+        // Create model downloader
+        GameObject downloaderObj = new GameObject("CustomCarsModelDownloader");
+        modelDownloader = downloaderObj.AddComponent<ModelDownloader>();
+        DontDestroyOnLoad(downloaderObj);
+        
+        modelDownloader.Initialize(Logger, assetBundlePath, OnModelDownloadComplete, OnModelDownloadProgress);
+        
+        // Create model browser UI
+        GameObject browserObj = new GameObject("CustomCarsModelBrowserUI");
+        modelBrowserUI = browserObj.AddComponent<ModelBrowserUI>();
+        DontDestroyOnLoad(browserObj);
+        
+        modelBrowserUI.Initialize(Logger, modelDownloader);
+        
+        if (debugLogging) Logger.LogInfo("Model browser system initialized");
+    }
+    
+    private void OnCatalogLoaded(List<CarModelInfo> models)
+    {
+        Logger.LogInfo($"Catalog loaded with {models.Count} models. Opening browser...");
+        modelBrowserUI.ShowBrowser(models);
+    }
+    
+    private void OnModelDownloadComplete(string modelName, bool success, string message)
+    {
+        modelBrowserUI.OnDownloadComplete(modelName, success, message);
+        
+        if (success)
+        {
+            Logger.LogInfo($"Model '{modelName}' downloaded successfully. Restart the game to use it.");
+        }
+    }
+    
+    private void OnModelDownloadProgress(string modelName, float progress)
+    {
+        modelBrowserUI.OnDownloadProgress(modelName, progress);
     }
     
     private void OnUserResponse(bool acceptUpdate)
