@@ -9,3 +9,4 @@ C:\Users\joese\Projects\CustomCars\obj\Debug\netstandard2.1\CustomCars.AssemblyI
 C:\Users\joese\Projects\CustomCars\obj\Debug\netstandard2.1\CustomCars.csproj.CoreCompileInputs.cache
 C:\Users\joese\Projects\CustomCars\obj\Debug\netstandard2.1\CustomCars.dll
 C:\Users\joese\Projects\CustomCars\obj\Debug\netstandard2.1\CustomCars.pdb
+C:\Users\joese\Projects\CustomCars\obj\Debug\netstandard2.1\CustomCars.sourcelink.json

@@ -31,6 +31,10 @@ public class CarConfig
     
     public ConfigEntry<string> AvailableCarsList;
     
+    // Update checker settings
+    public ConfigEntry<bool> CheckForUpdates;
+    public ConfigEntry<bool> SilenceUpdateNotifications;
+    
     public CarConfig(ConfigFile config)
     {
         configFile = config;
@@ -44,6 +48,21 @@ public class CarConfig
             "This list is automatically updated when the plugin loads and scans asset bundles.\n" +
             "NOTE: This list will be out of date until the next game launch after adding new cars.\n" +
             "Use these exact names (lowercase) in the player override settings below."
+        );
+        
+        // Update checker configuration
+        CheckForUpdates = config.Bind(
+            "Update Checker",
+            "CheckForUpdates",
+            true,
+            "Check for mod updates on launch (checks GitHub releases)"
+        );
+        
+        SilenceUpdateNotifications = config.Bind(
+            "Update Checker",
+            "SilenceUpdateNotifications",
+            false,
+            "Set to true to stop showing update notifications"
         );
         
         // Player 1 Configuration

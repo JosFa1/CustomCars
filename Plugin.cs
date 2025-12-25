@@ -29,6 +29,10 @@ public class Plugin : BaseUnityPlugin
     
     // Configuration
     private CarConfig carConfig;
+    
+    // Update checker
+    private UpdateChecker updateChecker;
+    private UpdateNotificationUI updateNotificationUI;
         
     private void Awake()
     {
@@ -50,6 +54,17 @@ public class Plugin : BaseUnityPlugin
         // Update config with available cars
         carConfig.UpdateAvailableCarsList(carPrefabs.Keys);
         if (debugLogging) Logger.LogInfo($"Car prefabs after bundle load: {string.Join(", ", carPrefabs.Keys)}");
+
+        // Initialize and check for updates
+        if (carConfig.CheckForUpdates.Value && !carConfig.SilenceUpdateNotifications.Value)
+        {
+            GameObject checkerObj = new GameObject("CustomCarsUpdateChecker");
+            updateChecker = checkerObj.AddComponent<UpdateChecker>();
+            DontDestroyOnLoad(checkerObj);
+            
+            updateChecker.Initialize(Logger, MyPluginInfo.PLUGIN_VERSION, OnUpdateAvailable);
+            updateChecker.CheckForUpdates();
+        }
 
         // Subscribe to scene load events
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -387,5 +402,42 @@ public class Plugin : BaseUnityPlugin
         if (debugLogging) Logger.LogInfo($"{playerName}: Created CustomCarVisual child with mesh and materials");
 
         if (debugLogging) Logger.LogInfo($"{playerName}: Custom car applied successfully using prefab '{carPrefab.name}'");
+    }
+    
+    private void OnUpdateAvailable(string latestVersion, string releaseUrl)
+    {
+        Logger.LogInfo($"Update available: {latestVersion}");
+        
+        // Create UI notification
+        GameObject uiObj = new GameObject("CustomCarsUpdateUI");
+        updateNotificationUI = uiObj.AddComponent<UpdateNotificationUI>();
+        DontDestroyOnLoad(uiObj);
+        
+        updateNotificationUI.ShowUpdateNotification(
+            MyPluginInfo.PLUGIN_VERSION,
+            latestVersion,
+            releaseUrl,
+            OnUserResponse,
+            OnSilenceUpdates
+        );
+    }
+    
+    private void OnUserResponse(bool acceptUpdate)
+    {
+        if (acceptUpdate)
+        {
+            Logger.LogInfo("User chose to view the release");
+        }
+        else
+        {
+            Logger.LogInfo("User chose to skip the update");
+        }
+    }
+    
+    private void OnSilenceUpdates()
+    {
+        Logger.LogInfo("User chose to silence update notifications");
+        carConfig.SilenceUpdateNotifications.Value = true;
+        Config.Save();
     }
 }
