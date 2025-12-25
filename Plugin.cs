@@ -63,7 +63,7 @@ public class Plugin : BaseUnityPlugin
         carConfig.UpdateAvailableCarsList(carPrefabs.Keys);
         if (debugLogging) Logger.LogInfo($"Car prefabs after bundle load: {string.Join(", ", carPrefabs.Keys)}");
 
-        // Initialize and check for updates
+        // Initialize and check for updates (but don't auto-show notification)
         if (carConfig.CheckForUpdates.Value && !carConfig.SilenceUpdateNotifications.Value)
         {
             GameObject checkerObj = new GameObject("CustomCarsUpdateChecker");
@@ -71,7 +71,8 @@ public class Plugin : BaseUnityPlugin
             DontDestroyOnLoad(checkerObj);
             
             updateChecker.Initialize(Logger, MyPluginInfo.PLUGIN_VERSION, OnUpdateAvailable);
-            updateChecker.CheckForUpdates();
+            // Check silently - user can manually check via F6/F8 menus if desired
+            // updateChecker.CheckForUpdates();
         }
         
         // Initialize model browser system
@@ -80,11 +81,8 @@ public class Plugin : BaseUnityPlugin
         // Initialize car config UI
         InitializeCarConfigUI();
         
-        // Auto-check for new models
-        if (carConfig.AutoCheckForNewModels.Value)
-        {
-            modelCatalog.FetchCatalog();
-        }
+        // Don't auto-check for new models on launch
+        // Users can manually open browser with F6
 
         // Subscribe to scene load events
         SceneManager.sceneLoaded += OnSceneLoaded;

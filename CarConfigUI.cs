@@ -27,7 +27,7 @@ public class CarConfigUI : MonoBehaviour
     private bool stylesInitialized = false;
     
     // Temporary config state (until saved)
-    private Dictionary<string, string[]> tempConfig = new Dictionary<string, string[]>();
+    private Dictionary<string, string> tempConfig = new Dictionary<string, string>();
     private int currentPlayer = 1;
     private string statusMessage = "";
     private float statusMessageTime = 0f;
@@ -59,30 +59,24 @@ public class CarConfigUI : MonoBehaviour
         
         for (int player = 1; player <= 4; player++)
         {
-            string[] choices = new string[4];
-            
-            var configEntries = player switch
+            var configEntry = player switch
             {
-                1 => new[] { carConfig.Player1Car1, carConfig.Player1Car2, carConfig.Player1Car3, carConfig.Player1Car4 },
-                2 => new[] { carConfig.Player2Car1, carConfig.Player2Car2, carConfig.Player2Car3, carConfig.Player2Car4 },
-                3 => new[] { carConfig.Player3Car1, carConfig.Player3Car2, carConfig.Player3Car3, carConfig.Player3Car4 },
-                4 => new[] { carConfig.Player4Car1, carConfig.Player4Car2, carConfig.Player4Car3, carConfig.Player4Car4 },
+                1 => carConfig.Player1Car,
+                2 => carConfig.Player2Car,
+                3 => carConfig.Player3Car,
+                4 => carConfig.Player4Car,
                 _ => null
             };
             
-            if (configEntries != null)
+            if (configEntry != null)
             {
-                for (int i = 0; i < 4; i++)
+                string value = configEntry.Value;
+                if (value == "null" || string.IsNullOrEmpty(value))
                 {
-                    choices[i] = configEntries[i].Value;
-                    if (choices[i] == "null" || string.IsNullOrEmpty(choices[i]))
-                    {
-                        choices[i] = "none";
-                    }
+                    value = "none";
                 }
+                tempConfig[$"Player{player}"] = value;
             }
-            
-            tempConfig[$"Player{player}"] = choices;
         }
     }
     
@@ -173,7 +167,7 @@ public class CarConfigUI : MonoBehaviour
         }
         
         // Instructions
-        GUILayout.Label($"Available Cars: {availableCars.Count} | Select up to 4 cars per player in order of preference", textStyle);
+        GUILayout.Label($"Available Cars: {availableCars.Count} | Select one car per player", textStyle);
         GUILayout.Space(10);
         
         // Player tabs
@@ -234,55 +228,58 @@ public class CarConfigUI : MonoBehaviour
         if (!tempConfig.ContainsKey(playerKey))
             return;
         
-        string[] choices = tempConfig[playerKey];
+        string currentCar = tempConfig[playerKey];
         
         GUILayout.BeginVertical(boxStyle);
         
-        GUILayout.Label($"Player {currentPlayer} Car Preferences", headerStyle);
+        GUILayout.Label($"Player {currentPlayer} Car Selection", headerStyle);
         GUILayout.Space(10);
         
-        // Show current choices
-        for (int i = 0; i < 4; i++)
+        // Show current selection
+        GUILayout.BeginHorizontal();
+        GUILayout.Label("Selected Car:", textStyle, GUILayout.Width(120));
+        string displayText = (currentCar == "none" || string.IsNullOrEmpty(currentCar)) ? "Default Car" : currentCar;
+        GUILayout.Label(displayText, headerStyle, GUILayout.Width(200));
+        
+        if (GUILayout.Button("Clear", buttonStyle, GUILayout.Width(80), GUILayout.Height(30)))
         {
-            GUILayout.BeginHorizontal();
-            
-            GUILayout.Label($"Choice {i + 1}:", textStyle, GUILayout.Width(80));
-            
-            string currentChoice = choices[i];
-            string displayText = (currentChoice == "none" || string.IsNullOrEmpty(currentChoice)) ? "Not Set" : currentChoice;
-            
-            GUILayout.Label(displayText, headerStyle, GUILayout.Width(150));
-            
-            if (GUILayout.Button("Clear", buttonStyle, GUILayout.Width(70), GUILayout.Height(25)))
-            {
-                choices[i] = "none";
-            }
-            
-            GUILayout.EndHorizontal();
-            GUILayout.Space(5);
+            tempConfig[playerKey] = "none";
         }
+        GUILayout.EndHorizontal();
         
         GUILayout.Space(15);
         
         // Available cars selection
-        GUILayout.Label("Click a car to set it as the next preference:", textStyle);
+        GUILayout.Label("Click a car to select it:", textStyle);
         GUILayout.Space(5);
         
-        scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Height(280));
+        scrollPosition = GUILayout.BeginScrollView(scrollPosition, GUILayout.Height(320));
         
         int columns = 3;
         int count = 0;
         
         GUILayout.BeginHorizontal();
         
+        // Default car option
+        bool isDefaultSelected = (currentCar == "none" || string.IsNullOrEmpty(currentCar));
+        var defaultStyle = isDefaultSelected ? selectedButtonStyle : buttonStyle;
+        
+        if (GUILayout.Button("Default Car", defaultStyle, GUILayout.Width(260), GUILayout.Height(40)))
+        {
+            tempConfig[playerKey] = "none";
+        }
+        
+        count++;
+        
+        // Available cars
         foreach (var car in availableCars)
         {
-            bool isAlreadySelected = choices.Contains(car);
-            var style = isAlreadySelected ? selectedButtonStyle : buttonStyle;
+            bool isSelected = (currentCar == car);
+            var style = isSelected ? selectedButtonStyle : buttonStyle;
             
-            if (GUILayout.Button(car, style, GUILayout.Width(260), GUILayout.Height(35)))
+            if (GUILayout.Button(car, style, GUILayout.Width(260), GUILayout.Height(40)))
             {
-                SetNextChoice(choices, car);
+                tempConfig[playerKey] = car;
             }
             
             count++;
@@ -294,58 +291,10 @@ public class CarConfigUI : MonoBehaviour
             }
         }
         
-        // Add "Default Car" option
-        bool isDefaultSelected = choices.Contains("none");
-        var defaultStyle = isDefaultSelected ? selectedButtonStyle : buttonStyle;
-        
-        if (GUILayout.Button("Default Car (none)", defaultStyle, GUILayout.Width(260), GUILayout.Height(35)))
-        {
-            SetNextChoice(choices, "none");
-        }
-        
         GUILayout.EndHorizontal();
         GUILayout.EndScrollView();
         
         GUILayout.EndVertical();
-    }
-    
-    private void SetNextChoice(string[] choices, string car)
-    {
-        // Find the first empty slot or the first occurrence of this car
-        int targetIndex = -1;
-        
-        // First, check if this car is already selected - if so, remove it
-        for (int i = 0; i < choices.Length; i++)
-        {
-            if (choices[i] == car)
-            {
-                choices[i] = "none";
-                logger.LogInfo($"Removed {car} from choice {i + 1}");
-                return;
-            }
-        }
-        
-        // Find first empty slot
-        for (int i = 0; i < choices.Length; i++)
-        {
-            if (choices[i] == "none" || string.IsNullOrEmpty(choices[i]))
-            {
-                targetIndex = i;
-                break;
-            }
-        }
-        
-        if (targetIndex != -1)
-        {
-            choices[targetIndex] = car;
-            logger.LogInfo($"Set choice {targetIndex + 1} to {car}");
-        }
-        else
-        {
-            // All slots full, replace the last one
-            choices[3] = car;
-            logger.LogInfo($"All slots full, replaced last choice with {car}");
-        }
     }
     
     private void ResetPlayer(int player)
@@ -353,8 +302,8 @@ public class CarConfigUI : MonoBehaviour
         string playerKey = $"Player{player}";
         if (tempConfig.ContainsKey(playerKey))
         {
-            tempConfig[playerKey] = new string[] { "none", "none", "none", "none" };
-            statusMessage = $"Player {player} preferences reset";
+            tempConfig[playerKey] = "none";
+            statusMessage = $"Player {player} selection reset";
             statusMessageTime = Time.time;
             logger.LogInfo($"Reset Player {player} configuration");
         }
@@ -371,28 +320,25 @@ public class CarConfigUI : MonoBehaviour
             if (!tempConfig.ContainsKey(playerKey))
                 continue;
             
-            string[] choices = tempConfig[playerKey];
+            string car = tempConfig[playerKey];
             
-            var configEntries = player switch
+            var configEntry = player switch
             {
-                1 => new[] { carConfig.Player1Car1, carConfig.Player1Car2, carConfig.Player1Car3, carConfig.Player1Car4 },
-                2 => new[] { carConfig.Player2Car1, carConfig.Player2Car2, carConfig.Player2Car3, carConfig.Player2Car4 },
-                3 => new[] { carConfig.Player3Car1, carConfig.Player3Car2, carConfig.Player3Car3, carConfig.Player3Car4 },
-                4 => new[] { carConfig.Player4Car1, carConfig.Player4Car2, carConfig.Player4Car3, carConfig.Player4Car4 },
+                1 => carConfig.Player1Car,
+                2 => carConfig.Player2Car,
+                3 => carConfig.Player3Car,
+                4 => carConfig.Player4Car,
                 _ => null
             };
             
-            if (configEntries != null)
+            if (configEntry != null)
             {
-                for (int i = 0; i < 4; i++)
+                string value = car;
+                if (value == "none" || string.IsNullOrEmpty(value))
                 {
-                    string value = choices[i];
-                    if (value == "none" || string.IsNullOrEmpty(value))
-                    {
-                        value = "null";
-                    }
-                    configEntries[i].Value = value;
+                    value = "null";
                 }
+                configEntry.Value = value;
             }
         }
         
