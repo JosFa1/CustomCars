@@ -38,6 +38,9 @@ public class Plugin : BaseUnityPlugin
     private ModelCatalog modelCatalog;
     private ModelDownloader modelDownloader;
     private ModelBrowserUI modelBrowserUI;
+    
+    // Car configuration UI
+    private CarConfigUI carConfigUI;
         
     private void Awake()
     {
@@ -74,6 +77,9 @@ public class Plugin : BaseUnityPlugin
         // Initialize model browser system
         InitializeModelBrowser();
         
+        // Initialize car config UI
+        InitializeCarConfigUI();
+        
         // Auto-check for new models
         if (carConfig.AutoCheckForNewModels.Value)
         {
@@ -91,6 +97,14 @@ public class Plugin : BaseUnityPlugin
         {
             Logger.LogInfo("Model browser key pressed - fetching catalog...");
             modelCatalog.FetchCatalog();
+        }
+        
+        // Check for car config hotkey
+        if (Input.GetKeyDown(carConfig.OpenCarConfigKey.Value))
+        {
+            Logger.LogInfo("Car config key pressed - opening configuration...");
+            List<string> installedCars = carPrefabs.Keys.ToList();
+            carConfigUI.ShowConfig(installedCars);
         }
     }
     
@@ -509,6 +523,23 @@ public class Plugin : BaseUnityPlugin
     {
         Logger.LogInfo("User chose to silence update notifications");
         carConfig.SilenceUpdateNotifications.Value = true;
+        Config.Save();
+    }
+    
+    private void InitializeCarConfigUI()
+    {
+        GameObject configUIObj = new GameObject("CustomCarsConfigUI");
+        carConfigUI = configUIObj.AddComponent<CarConfigUI>();
+        DontDestroyOnLoad(configUIObj);
+        
+        carConfigUI.Initialize(Logger, carConfig, OnCarConfigSaved);
+        
+        if (debugLogging) Logger.LogInfo("Car configuration UI initialized");
+    }
+    
+    private void OnCarConfigSaved()
+    {
+        Logger.LogInfo("Car configuration saved by user");
         Config.Save();
     }
 }

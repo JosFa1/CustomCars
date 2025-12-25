@@ -38,6 +38,7 @@ public class CarConfig
     
     // Model browser settings
     public ConfigEntry<KeyCode> OpenModelBrowserKey;
+    public ConfigEntry<KeyCode> OpenCarConfigKey;
     public ConfigEntry<bool> AutoCheckForNewModels;
     
     public CarConfig(ConfigFile config)
@@ -76,6 +77,13 @@ public class CarConfig
             "OpenBrowserKey",
             KeyCode.F6,
             "Press this key to open the model browser and download new car models"
+        );
+        
+        OpenCarConfigKey = config.Bind(
+            "Model Browser",
+            "OpenCarConfigKey",
+            KeyCode.F8,
+            "Press this key to open the car configuration UI and set your car preferences"
         );
         
         AutoCheckForNewModels = config.Bind(
