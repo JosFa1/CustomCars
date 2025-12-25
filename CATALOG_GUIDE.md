@@ -4,7 +4,7 @@ This guide explains how to maintain the `catalog.json` file for the CustomCars m
 
 ## Overview
 
-The `catalog.json` file is the central registry of all downloadable car models. Users can browse and download models directly through the in-game model browser (press F7).
+The `catalog.json` file is the central registry of all downloadable car models. Users can browse and download models directly through the in-game model browser (press F6).
 
 ## File Location
 
@@ -95,7 +95,7 @@ https://raw.githubusercontent.com/JosFa1/CustomCars/main/catalog.json
 ```
 
 5. Commit and push to GitHub
-6. Users will see it in the browser on next launch (if auto-check is enabled) or when they press F7
+6. Users will see it in the browser on next launch (if auto-check is enabled) or when they press F6
 
 ## Updating an Existing Model
 

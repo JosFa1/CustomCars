@@ -29,6 +29,16 @@
       "downloadUrl": "https://raw.githubusercontent.com/JosFa1/CustomCars/main/Models/keitruck",
       "previewUrl": "",
       "fileSize": "0.4"
+    },
+    {
+      "name": "redbullkeitruck",
+      "displayName": "Red Bull Kei Truck (RB Edition)",
+      "description": "Compact Japanese utility vehicle with Red Bull branding",
+      "author": "JackPG",
+      "version": "1.67",
+      "downloadUrl": "https://raw.githubusercontent.com/JosFa1/CustomCars/main/Models/redbullkeitruck",
+      "previewUrl": "",
+      "fileSize": "0.4"
     }
   ]
 }
