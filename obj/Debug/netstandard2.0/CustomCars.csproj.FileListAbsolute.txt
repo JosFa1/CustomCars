@@ -1,0 +1,6 @@
+C:\Users\joese\Projects\CustomCars\obj\Debug\netstandard2.0\CustomCars.csproj.AssemblyReference.cache
+C:\Users\joese\Projects\CustomCars\obj\Debug\netstandard2.0\MyPluginInfo.cs
+C:\Users\joese\Projects\CustomCars\obj\Debug\netstandard2.0\CustomCars.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\joese\Projects\CustomCars\obj\Debug\netstandard2.0\CustomCars.AssemblyInfoInputs.cache
+C:\Users\joese\Projects\CustomCars\obj\Debug\netstandard2.0\CustomCars.AssemblyInfo.cs
+C:\Users\joese\Projects\CustomCars\obj\Debug\netstandard2.0\CustomCars.csproj.CoreCompileInputs.cache
